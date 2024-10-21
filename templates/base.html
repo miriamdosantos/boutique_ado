@@ -37,7 +37,15 @@
     {% if messages %}
         <div class="message-container"></div>
     {% endif %}
-
+    {% block page_header %} <!-- additional header, pages extends, wants to put something at the top of those pages -->
+    {% endblock %}
     
+    {% block content %}
+    {% endblock %}
+
+    {% block postloadjs %}
+    {% endblock %}
+    
+
   </body>
 </html>
