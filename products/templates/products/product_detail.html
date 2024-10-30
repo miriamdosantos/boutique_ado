@@ -127,3 +127,16 @@
 {# 
 O bloco 'postloadjs' garante que o JavaScript específico para essa página ou seção seja carregado após o HTML, permitindo uma experiência de usuário mais fluida. Esse bloco é importante para que o script de controle da quantidade, que depende do DOM carregado, funcione sem problemas de tempo de carregamento.
 #}
+
+{# 
+    - '.input-group': Cria uma estrutura visual em linha com elementos centralizados, facilitando o alinhamento dos botões (+ e -) com o campo de quantidade.
+    - '.input-group-prepend' e '.input-group-append': Estruturas que posicionam elementos antes e depois do campo de entrada. Aqui, o botão de decremento (-) é adicionado antes do campo e o botão de incremento (+) depois.
+    - '.form-control': Estiliza o input para seguir o design padrão do Bootstrap, com bordas e preenchimento adequados.
+    - '.btn', '.btn-black', '.rounded-0' nos botões (+ e -): 
+      - '.btn' aplica o estilo base de botão do Bootstrap.
+      - '.btn-black' é uma classe personalizada para adicionar cor preta ao botão.
+      - '.rounded-0' remove bordas arredondadas, criando um visual moderno e mais minimalista.
+    #}
+    
+    {# Esse grupo de input, em combinação com o JavaScript incluído em 'quantity_input_script.html', permite aos usuários ajustar a quantidade de itens de forma interativa. O script adicional garante que os botões fiquem desativados se o valor de quantidade mínimo ou máximo (1-99) for atingido, ajudando o usuário a entender os limites. #}
+    
