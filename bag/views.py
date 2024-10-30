@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect, reverse, HttpResponse
-# Importa funções para renderizar templates, redirecionar, e retornar respostas HTTP.
+from django.shortcuts import render, redirect, reverse, HttpResponse, get_object_or_404
+# Importa funções para renderizar templates, redirecionar, retornar respostas HTTP e obter um objeto ou retornar 404.
 
 from django.contrib import messages
 # Importa o módulo de mensagens para enviar feedbacks ao usuário.
@@ -12,6 +12,7 @@ from products.models import Product
 def view_bag(request):
     """ A view that renders the bag contents page """
     # Define a função que renderiza a página da sacola de compras.
+
     return render(request, 'bag/bag.html')
     # Renderiza o template 'bag.html' e retorna a resposta HTTP para o usuário.
 
@@ -19,8 +20,8 @@ def add_to_bag(request, item_id):
     """ Add a quantity of the specified product to the shopping bag """
     # Define a função para adicionar um produto à sacola de compras.
 
-    product = Product.objects.get(pk=item_id)
-    # Recupera o produto do banco de dados usando o item_id como chave primária.
+    product = get_object_or_404(Product, pk=item_id)
+    # Recupera o produto do banco de dados usando o item_id como chave primária. Se não encontrado, retorna 404.
 
     quantity = int(request.POST.get('quantity'))
     # Obtém a quantidade do produto a ser adicionada a partir do formulário (POST), convertendo para inteiro.
@@ -43,24 +44,27 @@ def add_to_bag(request, item_id):
         if item_id in list(bag.keys()):
             # Se o item já estiver na sacola:
             if size in bag[item_id]['items_by_size'].keys():
-                # Se o tamanho do item já existe, incrementa a quantidade.
+                # Se o tamanho do item já existe, incrementa a quantidade e exibe mensagem de sucesso.
                 bag[item_id]['items_by_size'][size] += quantity
+                messages.success(request, f'Updated size {size.upper()} {product.name} quantity to {bag[item_id]["items_by_size"][size]}')
             else:
-                # Se o tamanho não existe, adiciona-o com a quantidade especificada.
+                # Se o tamanho não existe, adiciona-o com a quantidade especificada e exibe mensagem de sucesso.
                 bag[item_id]['items_by_size'][size] = quantity
+                messages.success(request, f'Added size {size.upper()} {product.name} to your bag')
         else:
-            # Se o item não está na sacola, cria uma nova entrada para ele.
+            # Se o item não está na sacola, cria uma nova entrada para ele e exibe mensagem de sucesso.
             bag[item_id] = {'items_by_size': {size: quantity}}
+            messages.success(request, f'Added size {size.upper()} {product.name} to your bag')
     else:
         # Se nenhum tamanho foi especificado:
         if item_id in list(bag.keys()):
-            # Se o item já estiver na sacola, incrementa a quantidade total.
+            # Se o item já estiver na sacola, incrementa a quantidade total e exibe mensagem de sucesso.
             bag[item_id] += quantity
+            messages.success(request, f'Updated {product.name} quantity to {bag[item_id]}')
         else:
-            # Se o item não está na sacola, adiciona o item com a quantidade e exibe uma mensagem de sucesso.
+            # Se o item não está na sacola, adiciona o item com a quantidade e exibe mensagem de sucesso.
             bag[item_id] = quantity
             messages.success(request, f'Added {product.name} to your bag')
-            # Adiciona uma mensagem de sucesso ao contexto da requisição.
 
     request.session['bag'] = bag
     # Atualiza a sessão do usuário com a nova sacola.
@@ -72,8 +76,11 @@ def adjust_bag(request, item_id):
     """Adjust the quantity of the specified product to the specified amount"""
     # Define a função para ajustar a quantidade de um produto na sacola.
 
+    product = get_object_or_404(Product, pk=item_id)
+    # Recupera o produto do banco de dados usando o item_id como chave primária. Se não encontrado, retorna 404.
+
     quantity = int(request.POST.get('quantity'))
-    # Obtém a nova quantidade a partir do formulário (POST).
+    # Obtém a nova quantidade a partir do formulário (POST), convertendo para inteiro.
 
     size = None
     # Inicializa a variável size como None.
@@ -88,22 +95,26 @@ def adjust_bag(request, item_id):
     if size:
         # Verifica se um tamanho foi especificado.
         if quantity > 0:
-            # Se a nova quantidade é maior que 0, atualiza a quantidade desse item.
+            # Se a nova quantidade é maior que 0, atualiza a quantidade desse item e exibe mensagem de sucesso.
             bag[item_id]['items_by_size'][size] = quantity
+            messages.success(request, f'Updated size {size.upper()} {product.name} quantity to {bag[item_id]["items_by_size"][size]}')
         else:
             # Se a quantidade é 0 ou menor, remove o item do tamanho especificado da sacola.
             del bag[item_id]['items_by_size'][size]
-            # Se não há mais itens desse tamanho, remove o item da sacola.
             if not bag[item_id]['items_by_size']:
+                # Se não há mais itens desse tamanho, remove o item da sacola.
                 bag.pop(item_id)
+            messages.success(request, f'Removed size {size.upper()} {product.name} from your bag')
     else:
         # Se nenhum tamanho foi especificado:
         if quantity > 0:
-            # Se a nova quantidade é maior que 0, atualiza a quantidade total do item.
+            # Se a nova quantidade é maior que 0, atualiza a quantidade total do item e exibe mensagem de sucesso.
             bag[item_id] = quantity
+            messages.success(request, f'Updated {product.name} quantity to {bag[item_id]}')
         else:
-            # Se a quantidade é 0 ou menor, remove o item da sacola.
+            # Se a quantidade é 0 ou menor, remove o item da sacola e exibe mensagem de sucesso.
             bag.pop(item_id)
+            messages.success(request, f'Removed {product.name} from your bag')
 
     request.session['bag'] = bag
     # Atualiza a sessão do usuário com a nova sacola.
@@ -116,6 +127,9 @@ def remove_from_bag(request, item_id):
     # Define a função para remover um item da sacola.
 
     try:
+        product = get_object_or_404(Product, pk=item_id)
+        # Recupera o produto do banco de dados usando o item_id como chave primária. Se não encontrado, retorna 404.
+
         size = None
         # Inicializa a variável size como None.
 
@@ -134,9 +148,11 @@ def remove_from_bag(request, item_id):
             if not bag[item_id]['items_by_size']:
                 # Se não há mais tamanhos desse item, remove o item da sacola.
                 bag.pop(item_id)
+            messages.success(request, f'Removed size {size.upper()} {product.name} from your bag')
         else:
             # Se nenhum tamanho foi especificado, remove o item da sacola.
             bag.pop(item_id)
+            messages.success(request, f'Removed {product.name} from your bag')
 
         request.session['bag'] = bag
         # Atualiza a sessão do usuário com a nova sacola.
@@ -146,5 +162,7 @@ def remove_from_bag(request, item_id):
 
     except Exception as e:
         # Captura qualquer exceção que ocorra.
+        messages.error(request, f'Error removing item: {e}')
+        # Adiciona uma mensagem de erro ao contexto da requisição.
         return HttpResponse(status=500)
         # Retorna uma resposta HTTP 500 (Erro Interno do Servidor) em caso de erro.
