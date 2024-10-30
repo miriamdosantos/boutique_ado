@@ -1,0 +1,28 @@
+<div class="toast custom-toast rounded-0 border-top-0" data-autohide="false">
+    <!-- A div principal representa a notificação do toast -->
+    
+    <div class="arrow-up arrow-success"></div>
+    <!-- Indica uma mensagem de sucesso com uma seta (opcional, pode ser um estilo personalizado) -->
+
+    <div class="w-100 toast-capper bg-success"></div>
+    <!-- Um elemento visual que representa um cabeçalho estilizado, aqui com fundo verde (bg-success) -->
+
+    <div class="toast-header bg-white text-dark">
+        <!-- O cabeçalho do toast, com fundo branco e texto escuro -->
+        
+        <strong class="mr-auto">Success!</strong>
+        <!-- Um texto em destaque, que diz que a ação foi bem-sucedida -->
+        
+        <button type="button" class="ml-2 mb-1 close text-dark" data-dismiss="toast" aria-label="Close">
+            <!-- Botão para fechar o toast -->
+            <span aria-hidden="true">&times;</span>
+            <!-- O ícone de fechamento (X) -->
+        </button>
+    </div>
+    
+    <div class="toast-body bg-white">
+        <!-- O corpo do toast onde a mensagem é exibida -->
+        {{ message }}        
+        <!-- A mensagem gerada pelo Django, injetada aqui -->
+    </div>
+</div>
