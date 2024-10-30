@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
+{# Bloco de cabeçalho da página, usando grid do Bootstrap para estrutura #}
 {% block page_header %}
     <div class="container header-container">
         <div class="row">
@@ -10,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="overlay"></div>
+    <div class="overlay"></div> {# Overlay visual aplicado na página para melhorar a estética #}
     <div class="container-fluid">
         <div class="row">
             <div class="col-12 col-md-6 col-lg-4 offset-lg-2">
@@ -19,17 +20,19 @@
                         <a href="{{ product.image.url }}" target="_blank">
                             <img class="card-img-top img-fluid" src="{{ product.image.url }}" alt="{{ product.name }}">
                         </a>
-                        {% else %}
+                    {% else %}
                         <a href="">
                             <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ product.name }}">
                         </a>
                     {% endif %}
                 </div>
             </div>
+
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="product-details-container mb-5 mt-md-5">
                     <p class="mb-0">{{ product.name }}</p>
                     <p class="lead mb-0 text-left font-weight-bold">${{ product.price }}</p>
+
                     {% if product.category %}
                     <p class="small mt-1 mb-0">
                         <a class="text-muted" href="{% url 'products' %}?category={{ product.category.name }}">
@@ -37,12 +40,16 @@
                         </a>
                     </p>
                     {% endif %}
+
                     {% if product.rating %}
                         <small class="text-muted"><i class="fas fa-star mr-1"></i>{{ product.rating }} / 5</small>
                     {% else %}
                         <small class="text-muted">No Rating</small>
                     {% endif %}
+
                     <p class="mt-3">{{ product.description }}</p>
+
+                    {# Formulário para adicionar o produto ao carrinho com opções de tamanho e quantidade #}
                     <form class="form" action="{% url 'add_to_bag' product.id %}" method="POST">
                         {% csrf_token %}
                         <div class="form-row">
@@ -59,11 +66,35 @@
                                     </select>
                                 </div>
                             {% endif %}
+
                             <div class="col-12">
                                 <p class="mt-3"><strong>Quantity:</strong></p>
                                 <div class="form-group w-50">
                                     <div class="input-group">
-                                        <input class="form-control qty_input" type="number" name="quantity" value="1" min="1" max="99" data-item_id="{{ product.id }}" id="id_qty_{{ product.id }}">
+                                        <!-- Botão de decremento (-) que reduz a quantidade do produto no input -->
+                                        <div class="input-group-prepend">
+                                            <button class="decrement-qty btn btn-black rounded-0" 
+                                                data-item_id="{{ product.id }}" id="decrement-qty_{{ product.id }}">
+                                                <span class="icon">
+                                                    <i class="fas fa-minus"></i> {# Ícone de sinal de menos #}
+                                                </span>
+                                            </button>
+                                        </div>
+
+                                        <!-- Campo de entrada para a quantidade com um valor mínimo de 1 e máximo de 99 -->
+                                        <input class="form-control qty_input" type="number"
+                                            name="quantity" value="1" min="1" max="99"
+                                            data-item_id="{{ product.id }}" id="id_qty_{{ product.id }}">
+
+                                        <!-- Botão de incremento (+) que aumenta a quantidade no input -->
+                                        <div class="input-group-append">
+                                            <button class="increment-qty btn btn-black rounded-0"
+                                                data-item_id="{{ product.id }}" id="increment-qty_{{ product.id }}">
+                                                <span class="icon">
+                                                    <i class="fas fa-plus"></i> {# Ícone de sinal de mais #}
+                                                </span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -86,3 +117,13 @@
         </div>
     </div>
 {% endblock %}
+
+{% block postloadjs %}
+    {{ block.super }}  {# Inclui o conteúdo do bloco 'postloadjs' herdado do template principal (base.html), carregando scripts globais necessários para toda a aplicação. #}
+
+    {% include 'products/includes/quantity_input_script.html' %}  {# Inclui o script JavaScript 'quantity_input_script.html' específico para gerenciar o comportamento dos botões de incremento/decremento de quantidade, modularizando o código e facilitando a manutenção. #}
+{% endblock %}
+
+{# 
+O bloco 'postloadjs' garante que o JavaScript específico para essa página ou seção seja carregado após o HTML, permitindo uma experiência de usuário mais fluida. Esse bloco é importante para que o script de controle da quantidade, que depende do DOM carregado, funcione sem problemas de tempo de carregamento.
+#}
