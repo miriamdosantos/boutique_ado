@@ -72,7 +72,7 @@
                                                                 <i class="fas fa-plus fa-sm"></i>  {# Ícone de aumentar quantidade #}
                                                             </span>
                                                         </button>
-                                                    </div>
+                                                   </div>
                                                     {% if item.product.has_sizes %}  {# Se o produto tem tamanhos, adiciona campo oculto #}
                                                         <input type="hidden" name="product_size" value="{{ item.size }}">
                                                     {% endif %}
@@ -90,7 +90,7 @@
                             <tr>
                                 <td colspan="5" class="pt-5 text-right">  {# Total do carrinho e valores #}
                                     <h6><strong>Bag Total: ${{ total|floatformat:2 }}</strong></h6>  {# Total do carrinho #}
-                                    <h6>Delivery: ${{ delivery|floatformat:2 }}</h6>  {# Custo de entrega #}
+                                    h6>Delivery: ${{ delivery|floatformat:2 }}</h6>  {# Custo de entrega #}
                                     <h4 class="mt-4"><strong>Grand Total: ${{ grand_total|floatformat:2 }}</strong></h4>  {# Total geral #}
                                     {% if free_delivery_delta > 0 %}  {# Verifica se o usuário pode ter entrega grátis #}
                                         <p class="mb-1 text-danger">
@@ -107,7 +107,7 @@
                                         </span>
                                         <span class="text-uppercase">Keep Shopping</span>  {# Texto do botão #}
                                     </a>
-                                    <a href="" class="btn btn-black rounded-0 btn-lg">  {# Botão para ir ao checkout #}
+                                    <a href="{% url checkout %}" class="btn btn-black rounded-0 btn-lg">  {# Botão para ir ao checkout #}
                                         <span class="text-uppercase">Secure Checkout</span>
                                         <span class="icon">
                                             <i class="fas fa-lock"></i>  {# Ícone de segurança #}
