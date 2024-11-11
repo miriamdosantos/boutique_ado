@@ -135,3 +135,20 @@
         </div>
     </div>
 {% endblock %}
+
+{% block postloadjs %}
+    {{ block.super }} # Inclui qualquer JavaScript adicional que já está no bloco principal, útil se este template estiver estendendo outro.
+
+<!-- Aqui estamos usando o filtro json_script do Django, que ajuda a passar dados de forma segura do backend para o JavaScript:
+// - json_script transforma o valor das variáveis em JSON e coloca dentro de um <script> seguro.
+// - Essa abordagem evita ataques XSS (cross-site scripting) ao injetar variáveis na página HTML.
+// - Especificamos um id único para cada script, que é "id_stripe_public_key" e "id_client_secret" neste caso. 
+// - No JavaScript, usaremos esses ids para acessar os valores e usá-los no código.
+    {{ stripe_public_key|json_script:"id_stripe_public_key" }}
+    {{ client_secret|json_script:"id_client_secret" }}
+
+// Carrega o arquivo JavaScript `stripe_elements.js` que configura o processo de pagamento usando o Stripe, 
+// Esse arquivo pode conter a lógica principal para criar os elementos de pagamento na página.
+-->
+<script src="{% static 'checkout/js/stripe_elements.js' %}"></script>
+{% endblock %}
