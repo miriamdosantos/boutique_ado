@@ -1,159 +1,160 @@
-{% extends "base.html" %}  {# Estende o template base #}
-{% load static %}  {# Carrega arquivos estáticos, se necessário #}
+{% extends "base.html" %}
+{% load static %}
 {% load bag_tools %}
-{% block page_header %}  {# Bloco para o cabeçalho da página #}
+
+{% block page_header %}
     <div class="container header-container">
         <div class="row">
-            <div class="col"></div>  {# Coluna vazia para layout #}
+            <div class="col"></div>
         </div>
     </div>
 {% endblock %}
 
-{% block content %}  {# Bloco principal de conteúdo da página #}
-    <div class="overlay"></div>  {# Sobreposição para estilo, se necessário #}
-    <div class="container mb-2">  {# Contêiner principal para o conteúdo #}
+{% block content %}
+    <div class="overlay"></div>
+    <div class="container mb-2">
         <div class="row">
             <div class="col">
-                <hr>  {# Linha horizontal #}
-                <h2 class="logo-font mb-4">Shopping Bag</h2>  {# Título do carrinho #}
-                <hr>  {# Linha horizontal #}
+                <hr>
+                <h2 class="logo-font mb-4">Shopping Bag</h2>
+                <hr>
             </div>
         </div>
 
         <div class="row">
             <div class="col">
-                {% if bag_items %}  {# Verifica se existem itens no carrinho #}
-                    <div class="table-responsive rounded">  {# Tabela responsiva para os itens do carrinho #}
-                        <table class="table table-sm table-borderless">  {# Tabela sem bordas #}
-                            <thead class="text-black">  {# Cabeçalho da tabela #}
+                {% if bag_items %}
+                    <div class="table-responsive rounded">
+                        <table class="table table-sm table-borderless">
+                            <thead class="text-black">
                                 <tr>
-                                    <th scope="col">Product Info</th>  {# Informações do produto #}
-                                    <th scope="col"></th>  {# Coluna vazia para layout #}
-                                    <th scope="col">Price</th>  {# Preço #}
-                                    <th scope="col">Qty</th>  {# Quantidade #}
-                                    <th scope="col">Subtotal</th>  {# Subtotal #}
+                                    <th scope="col">Product Info</th>
+                                    <th scope="col"></th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Qty</th>
+                                    <th scope="col">Subtotal</th>
                                 </tr>
                             </thead>
 
-                            {% for item in bag_items %}  {# Itera sobre os itens do carrinho #}
+                            {% for item in bag_items %}
                                 <tr>
-                                    <td class="p-3 w-25">  {# Célula para imagem do produto #}
-                                        <img class="img-fluid rounded" src="{{ item.product.image.url }}">  {# Imagem do produto #}
+                                    <td class="p-3 w-25">
+                                        <img class="img-fluid rounded" src="{{ item.product.image.url }}">
                                     </td>
-                                    <td class="py-3">  {# Célula para informações do produto #}
-                                        <p class="my-0"><strong>{{ item.product.name }}</strong></p>  {# Nome do produto #}
-                                        <p class="my-0"><strong>Size: </strong>{% if item.product.has_sizes %}{{ item.size|upper }}{% else %}N/A{% endif %}</p>  {# Tamanho do produto, se aplicável #}
-                                        <p class="my-0 small text-muted">SKU: {{ item.product.sku|upper }}</p>  {# SKU do produto #}
+                                    <td class="py-3">
+                                        <p class="my-0"><strong>{{ item.product.name }}</strong></p>
+                                        <p class="my-0"><strong>Size: </strong>{% if item.product.has_sizes %}{{ item.size|upper }}{% else %}N/A{% endif %}</p>
+                                        <p class="my-0 small text-muted">SKU: {{ item.product.sku|upper }}</p>
                                     </td>
-                                    <td class="py-3">  {# Célula para preço do produto #}
-                                        <p class="my-0">${{ item.product.price }}</p>  {# Preço do produto #}
+                                    <td class="py-3">
+                                        <p class="my-0">${{ item.product.price }}</p>
                                     </td>
-                                    <td class="py-3 w-25">  {# Célula para a quantidade do produto #}
-                                        <form class="form update-form" method="POST" action="{% url 'adjust_bag' item.item_id %}">  {# Formulário para atualizar a quantidade #}
-                                            {% csrf_token %}  {# Token CSRF para proteção contra ataques #}
+                                    <td class="py-3 w-25">
+                                        <form class="form update-form" method="POST" action="{% url 'adjust_bag' item.item_id %}">
+                                            {% csrf_token %}
                                             <div class="form-group">
-                                                <div class="input-group">  {# Grupo de entrada para quantidade #}
+                                                <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <button class="decrement-qty btn btn-sm btn-black rounded-0" 
                                                             data-item_id="{{ item.item_id }}" id="decrement-qty_{{ item.item_id }}">
                                                             <span>
-                                                                <i class="fas fa-minus fa-sm"></i>  {# Ícone de diminuir quantidade #}
+                                                                <i class="fas fa-minus fa-sm"></i>
                                                             </span>
                                                         </button>
                                                     </div>
                                                     <input class="form-control form-control-sm qty_input" type="number"
                                                         name="quantity" value="{{ item.quantity }}" min="1" max="99"
                                                         data-item_id="{{ item.item_id }}"
-                                                        id="id_qty_{{ item.item_id }}">  {# Campo de entrada para quantidade #}
+                                                        id="id_qty_{{ item.item_id }}">
                                                     <div class="input-group-append">
                                                         <button class="increment-qty btn btn-sm btn-black rounded-0"
                                                             data-item_id="{{ item.item_id }}" id="increment-qty_{{ item.item_id }}">
                                                             <span>
-                                                                <i class="fas fa-plus fa-sm"></i>  {# Ícone de aumentar quantidade #}
+                                                                <i class="fas fa-plus fa-sm"></i>
                                                             </span>
                                                         </button>
-                                                   </div>
-                                                    {% if item.product.has_sizes %}  {# Se o produto tem tamanhos, adiciona campo oculto #}
+                                                    </div>
+                                                    {% if item.product.has_sizes %}
                                                         <input type="hidden" name="product_size" value="{{ item.size }}">
                                                     {% endif %}
                                                 </div>
                                             </div>
                                         </form>
-                                        <a class="update-link text-info"><small>Update</small></a>  {# Link para atualizar a quantidade #}
-                                        <a class="remove-item text-danger float-right" id="remove_{{ item.item_id }}" data-product-size="{{ item.size }}"><small>Remove</small></a>  {# Link para remover item #}
+                                        <a class="update-link text-info"><small>Update</small></a>
+                                        <a class="remove-item text-danger float-right" id="remove_{{ item.item_id }}" data-product_size="{{ item.size }}"><small>Remove</small></a>
                                     </td>
-                                    <td class="py-3">  {# Célula para o subtotal #}
-                                        <p class="my-0">${{ item.product.price | calc_subtotal:item.quantity }}</p>  {# Preço do produto novamente para subtotal (apenas um exemplo) #}
+                                    <td class="py-3">
+                                        <p class="my-0">${{ item.product.price | calc_subtotal:item.quantity }}</p>
                                     </td>
                                 </tr>
                             {% endfor %}
                             <tr>
-                                <td colspan="5" class="pt-5 text-right">  {# Total do carrinho e valores #}
-                                    <h6><strong>Bag Total: ${{ total|floatformat:2 }}</strong></h6>  {# Total do carrinho #}
-                                    h6>Delivery: ${{ delivery|floatformat:2 }}</h6>  {# Custo de entrega #}
-                                    <h4 class="mt-4"><strong>Grand Total: ${{ grand_total|floatformat:2 }}</strong></h4>  {# Total geral #}
-                                    {% if free_delivery_delta > 0 %}  {# Verifica se o usuário pode ter entrega grátis #}
+                                <td colspan="5" class="pt-5 text-right">
+                                    <h6><strong>Bag Total: ${{ total|floatformat:2 }}</strong></h6>
+                                    <h6>Delivery: ${{ delivery|floatformat:2 }}</h6>
+                                    <h4 class="mt-4"><strong>Grand Total: ${{ grand_total|floatformat:2 }}</strong></h4>
+                                    {% if free_delivery_delta > 0 %}
                                         <p class="mb-1 text-danger">
-                                            You could get free delivery by spending just <strong>${{ free_delivery_delta }}</strong> more!  {# Mensagem para incentivar gasto adicional #}
+                                            You could get free delivery by spending just <strong>${{ free_delivery_delta }}</strong> more!
                                         </p>
                                     {% endif %}
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="5" class="text-right">  {# Ações do carrinho #}
-                                    <a href="{% url 'products' %}" class="btn btn-outline-black rounded-0 btn-lg">  {# Botão para continuar comprando #}
+                                <td colspan="5" class="text-right">
+                                    <a href="{% url 'products' %}" class="btn btn-outline-black rounded-0 btn-lg">
                                         <span class="icon">
-                                            <i class="fas fa-chevron-left"></i>  {# Ícone de voltar #}
+                                            <i class="fas fa-chevron-left"></i>
                                         </span>
-                                        <span class="text-uppercase">Keep Shopping</span>  {# Texto do botão #}
+                                        <span class="text-uppercase">Keep Shopping</span>
                                     </a>
-                                    <a href="{% url checkout %}" class="btn btn-black rounded-0 btn-lg">  {# Botão para ir ao checkout #}
+                                    <a href="{% url 'checkout' %}" class="btn btn-black rounded-0 btn-lg">
                                         <span class="text-uppercase">Secure Checkout</span>
                                         <span class="icon">
-                                            <i class="fas fa-lock"></i>  {# Ícone de segurança #}
+                                            <i class="fas fa-lock"></i>
                                         </span>
                                     </a>
                                 </td>
                             </tr>
                         </table>
                     </div>
-                {% else %}  {# Se não houver itens no carrinho #}
-                    <p class="lead mb-5">Your bag is empty.</p>  {# Mensagem de carrinho vazio #}
-                    <a href="{% url 'products' %}" class="btn btn-outline-black rounded-0 btn-lg">  {# Botão para continuar comprando #}
+                {% else %}
+                    <p class="lead mb-5">Your bag is empty.</p>
+                    <a href="{% url 'products' %}" class="btn btn-outline-black rounded-0 btn-lg">
                         <span class="icon">
-                            <i class="fas fa-chevron-left"></i>  {# Ícone de voltar #}
+                            <i class="fas fa-chevron-left"></i>
                         </span>
-                        <span class="text-uppercase">Keep Shopping</span>  {# Texto do botão #}
+                        <span class="text-uppercase">Keep Shopping</span>
                     </a>
-                {% endif %}  {# Fim da verificação de itens no carrinho #}
+                {% endif %}
             </div>
         </div>
     </div>
 {% endblock %}
 
-{% block postloadjs %}  {# Inicia um bloco de scripts que será preenchido após o carregamento da página #}
-{{ block.super }}  {# Inclui o conteúdo do bloco pai, permitindo que scripts adicionais sejam adicionados a partir de outros templates que herdam deste #}
-{% include 'products/includes/quantity_input_script.html' %}  {# Inclui um script separado para manipulação de entradas de quantidade, promovendo reuso de código #}
+{% block postloadjs %}
+{{ block.super }}
+{% include 'products/includes/quantity_input_script.html' %}
 
-<script type="text/javascript">  // Início de um bloco de script JavaScript #}
+<script type="text/javascript">
     // Update quantity on click
-    $('.update-link').click(function(e) {  // Define um evento de clique para elementos com a classe 'update-link'
-        var form = $(this).prev('.update-form');  // Seleciona o formulário anterior ao link clicado que possui a classe 'update-form'
-        form.submit();  // Envia o formulário selecionado, permitindo que a quantidade seja atualizada no servidor
-    });
+    $('.update-link').click(function(e) {
+        var form = $(this).prev('.update-form');
+        form.submit();
+    })
 
     // Remove item and reload on click
-    $('.remove-item').click(function(e) {  // Define um evento de clique para elementos com a classe 'remove-item'
-        var csrfToken = "{{ csrf_token }}";  // Armazena o token CSRF gerado pelo Django para segurança em requisições
-        var itemId = $(this).attr('id').split('remove_')[1];  // Extrai o ID do item a ser removido a partir do atributo 'id' do elemento clicado
-        var size = $(this).data('product_size');  // Obtém o tamanho do item (armazenado como um atributo de dados no elemento HTML)
-        var url = `/bag/remove/${itemId}/`;  // Constrói a URL para a requisição AJAX que remove o item do carrinho
-        var data = {'csrfmiddlewaretoken': csrfToken, 'product_size': size};  // Cria um objeto de dados que inclui o token CSRF e o tamanho do item a ser removido
+    $('.remove-item').click(function(e) {
+        var csrfToken = "{{ csrf_token }}";
+        var itemId = $(this).attr('id').split('remove_')[1];
+        var size = $(this).data('product_size');
+        var url = `/bag/remove/${itemId}/`;
+        var data = {'csrfmiddlewaretoken': csrfToken, 'product_size': size};
 
-        $.post(url, data)  // Realiza uma requisição POST para a URL construída, enviando os dados
-         .done(function() {  // Define uma função de callback que será executada se a requisição for bem-sucedida
-             location.reload();  // Recarrega a página atual, atualizando a exibição do carrinho de compras
+        $.post(url, data)
+         .done(function() {
+             location.reload();
          });
-    });
+    })
 </script>
-{% endblock %}  {# Fim do bloco de script #}
+{% endblock %}

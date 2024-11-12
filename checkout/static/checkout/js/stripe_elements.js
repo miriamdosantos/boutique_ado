@@ -1,42 +1,75 @@
 /*
-    A lógica principal do pagamento (fluxo e autenticação) segue as instruções da Stripe:
+    Core logic/payment flow for this comes from here:
     https://stripe.com/docs/payments/accept-a-payment
-    
-    O CSS para estilizar os campos de pagamento vem da documentação:
+
+    CSS from here: 
     https://stripe.com/docs/stripe-js
 */
 
-// Coleta o valor da chave pública do Stripe a partir do script com o id "id_stripe_public_key"
-var stripe_public_key = $('#id_stripe_public_key').text().slice(1, -1);  // .text() pega o conteúdo JSON, slice(1, -1) remove aspas externas
-
-// Coleta o valor do client_secret do script com o id "id_client_secret"
-var client_secret = $('#id_client_secret').text().slice(1, -1);  // Também remove aspas para que seja uma string pronta para uso
-
-// Inicializa o Stripe com a chave pública coletada, autorizando a sessão
-var stripe = Stripe(stripe_public_key);
-
-// Cria uma instância de "elements" do Stripe, que gerará e controlará os campos de pagamento de forma segura
+var stripePublicKey = $('#id_stripe_public_key').text().slice(1, -1);
+var clientSecret = $('#id_client_secret').text().slice(1, -1);
+var stripe = Stripe(stripePublicKey);
 var elements = stripe.elements();
-
-// Define o estilo dos campos de pagamento, seguindo as sugestões de formatação da Stripe
 var style = {
     base: {
-        color: '#000',  // Cor do texto nos campos
-        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',  // Fonte a ser usada
-        fontSmoothing: 'antialiased',  // Suavização do texto para melhorar a aparência
-        fontSize: '16px',  // Tamanho da fonte
+        color: '#000',
+        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+        fontSmoothing: 'antialiased',
+        fontSize: '16px',
         '::placeholder': {
-            color: '#aab7c4'  // Cor do texto do placeholder
+            color: '#aab7c4'
         }
     },
     invalid: {
-        color: '#dc3545',  // Cor do texto de erro
-        iconColor: '#dc3545'  // Cor do ícone de erro (como o ícone de cartão inválido)
+        color: '#dc3545',
+        iconColor: '#dc3545'
     }
 };
-
-// Cria um campo de entrada de cartão de crédito, aplicando o estilo especificado
 var card = elements.create('card', {style: style});
-
-// Monta o campo de cartão no elemento HTML com o id "card-element"
 card.mount('#card-element');
+
+// Handle realtime validation errors on the card element
+card.addEventListener('change', function (event) {
+    var errorDiv = document.getElementById('card-errors');
+    if (event.error) {
+        var html = `
+            <span class="icon" role="alert">
+                <i class="fas fa-times"></i>
+            </span>
+            <span>${event.error.message}</span>
+        `;
+        $(errorDiv).html(html);
+    } else {
+        errorDiv.textContent = '';
+    }
+});
+
+// Handle form submit
+var form = document.getElementById('payment-form');
+
+form.addEventListener('submit', function(ev) {
+    ev.preventDefault();
+    card.update({ 'disabled': true});
+    $('#submit-button').attr('disabled', true);
+    stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+            card: card,
+        }
+    }).then(function(result) {
+        if (result.error) {
+            var errorDiv = document.getElementById('card-errors');
+            var html = `
+                <span class="icon" role="alert">
+                <i class="fas fa-times"></i>
+                </span>
+                <span>${result.error.message}</span>`;
+            $(errorDiv).html(html);
+            card.update({ 'disabled': false});
+            $('#submit-button').attr('disabled', false);
+        } else {
+            if (result.paymentIntent.status === 'succeeded') {
+                form.submit();
+            }
+        }
+    });
+});
