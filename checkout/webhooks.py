@@ -52,5 +52,3 @@ def webhook(request):
     # Call the event handler with the event
     response = event_handler(event)
     return response
-#webhook_handler.py (Classe StripeWH_Handler): Define a lógica para cada tipo de evento.
-#webhook.py (Função webhook): Atua como a "view" que recebe a requisição e repassa para o StripeWH_Handler, dependendo do tipo de evento.
